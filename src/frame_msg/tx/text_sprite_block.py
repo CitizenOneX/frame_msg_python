@@ -1,9 +1,7 @@
 from dataclasses import dataclass
-import struct
 from typing import List, Optional
-import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from frame_msg import TxSprite
+from sprite import TxSprite
 
 @dataclass
 class TxTextSpriteBlock:
