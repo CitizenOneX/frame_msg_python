@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import struct
 from typing import List
 import numpy as np
-from frame_msg import TxSprite
+from .tx_sprite import TxSprite
 
 @dataclass
 class TxImageSpriteBlock:

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 from PIL import Image, ImageDraw, ImageFont
-from frame_msg import TxSprite
+from .tx_sprite import TxSprite
 
 @dataclass
 class TxTextSpriteBlock:
