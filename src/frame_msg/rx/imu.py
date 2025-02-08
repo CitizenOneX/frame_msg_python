@@ -1,16 +1,20 @@
-from typing import Tuple, Optional, List
-from dataclasses import dataclass
+import asyncio
+import logging
 import math
 import struct
-from bleak import BleakClient
+from typing import Optional, Tuple
+from dataclasses import dataclass
+
+logging.basicConfig()
+_log = logging.getLogger("RxIMU")
 
 class SensorBuffer:
-    """Buffer class for smoothing sensor readings"""
+    """Buffer class to provide smoothed moving average of samples"""
     def __init__(self, max_size: int):
         self.max_size = max_size
-        self._buffer: List[Tuple[int, int, int]] = []
+        self._buffer: list[Tuple[int, int, int]] = []
 
-    def add(self, value: Tuple[int, int, int]):
+    def add(self, value: Tuple[int, int, int]) -> None:
         self._buffer.append(value)
         if len(self._buffer) > self.max_size:
             self._buffer.pop(0)
@@ -20,11 +24,16 @@ class SensorBuffer:
         if not self._buffer:
             return (0, 0, 0)
 
-        sum_x = sum(v[0] for v in self._buffer)
-        sum_y = sum(v[1] for v in self._buffer)
-        sum_z = sum(v[2] for v in self._buffer)
-        size = len(self._buffer)
-        return (sum_x // size, sum_y // size, sum_z // size)
+        sum_x = sum(x for x, _, _ in self._buffer)
+        sum_y = sum(y for _, y, _ in self._buffer)
+        sum_z = sum(z for _, _, z in self._buffer)
+        length = len(self._buffer)
+
+        return (
+            sum_x // length,
+            sum_y // length,
+            sum_z // length
+        )
 
 @dataclass
 class IMURawData:
@@ -46,32 +55,76 @@ class IMUData:
         return math.atan2(self.accel[0], self.accel[2]) * 180.0 / math.pi
 
 class RxIMU:
-    def __init__(self, imu_flag: int = 0x0A, smoothing_samples: int = 1):
-        self._smoothing_samples = smoothing_samples
+    def __init__(
+        self,
+        imu_flag: int = 0x0A,
+        smoothing_samples: int = 1,
+    ):
+        """
+        Initialize IMU handler for processing magnetometer and accelerometer data.
+
+        Args:
+            imu_flag: Message type identifier for IMU data
+            smoothing_samples: Number of samples to use for moving average
+        """
         self.imu_flag = imu_flag
+        self._smoothing_samples = smoothing_samples
+
+        self.queue: Optional[asyncio.Queue] = None
         self._compass_buffer = SensorBuffer(smoothing_samples)
         self._accel_buffer = SensorBuffer(smoothing_samples)
 
-    async def process_data(self, char: BleakClient, callback):
-        def notification_handler(_, data: bytearray):
-            if data[0] != self.imu_flag:
-                return
+    def handle_data(self, data: bytes) -> None:
+        """
+        Process incoming IMU data packets.
 
-            # Convert bytes to signed 16-bit integers
-            s16 = struct.unpack('<6h', data[2:14])  # 6 signed shorts
+        Args:
+            data: Bytes containing IMU data with flag byte prefix
+        """
+        if not data:
+            return
 
-            raw_compass = (s16[0], s16[1], s16[2])
-            raw_accel = (s16[3], s16[4], s16[5])
+        if not self.queue:
+            _log.warning("Received data but queue not initialized - call start() first")
+            return
 
-            self._compass_buffer.add(raw_compass)
-            self._accel_buffer.add(raw_accel)
+        if data[0] != self.imu_flag:
+            return
 
-            imu_data = IMUData(
-                compass=self._compass_buffer.average,
-                accel=self._accel_buffer.average,
-                raw=IMURawData(compass=raw_compass, accel=raw_accel)
+        # Parse six signed 16-bit integers from the data starting at offset 2
+        values = struct.unpack('<6h', data[2:14])
+
+        # Extract compass and accelerometer values
+        raw_compass = (values[0], values[1], values[2])
+        raw_accel = (values[3], values[4], values[5])
+
+        # Add to buffers
+        self._compass_buffer.add(raw_compass)
+        self._accel_buffer.add(raw_accel)
+
+        # Create IMU data with smoothed and raw values
+        imu_data = IMUData(
+            compass=self._compass_buffer.average,
+            accel=self._accel_buffer.average,
+            raw=IMURawData(
+                compass=raw_compass,
+                accel=raw_accel
             )
+        )
 
-            callback(imu_data)
+        # Queue the data
+        asyncio.create_task(self.queue.put(imu_data))
 
-        await char.start_notify(char.uuid, notification_handler)
+    async def start(self) -> asyncio.Queue:
+        """
+        Start the IMU handler and return a queue that will receive IMU data.
+
+        Returns:
+            asyncio.Queue that will receive IMUData objects
+        """
+        self.queue = asyncio.Queue()
+        return self.queue
+
+    def stop(self) -> None:
+        """Stop the IMU handler and clean up resources"""
+        self.queue = None

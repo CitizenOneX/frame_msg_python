@@ -1,58 +1,136 @@
-from PIL import Image
+import asyncio
+import logging
+from typing import Dict, List, Optional
+import PIL.Image as Image
 import io
-from bleak import BleakClient
+
+logging.basicConfig()
+_log = logging.getLogger("RxPhoto")
 
 class RxPhoto:
-    def __init__(self, non_final_chunk_flag: int = 0x07, final_chunk_flag: int = 0x08,
-                 upright: bool = True, is_raw: bool = False, quality: str = None,
-                 resolution: int = None):
+    # Static storage for JPEG headers
+    _jpeg_header_map: Dict[str, bytes] = {}
+
+    def __init__(
+        self,
+        non_final_chunk_flag: int = 0x07,
+        final_chunk_flag: int = 0x08,
+        upright: bool = True,
+        is_raw: bool = False,
+        quality: Optional[str] = None,  # 'VERY_LOW', 'LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH'
+        resolution: Optional[int] = None,  # even number between 100 and 720 inclusive
+    ):
+        """
+        Initialize a photo handler that assembles image chunks into complete JPEG images.
+
+        Args:
+            non_final_chunk_flag: Flag indicating a non-final chunk of image data
+            final_chunk_flag: Flag indicating the final chunk of image data
+            upright: Whether to rotate image -90 degrees to correct for sensor orientation
+            is_raw: Whether incoming data will be raw (without JPEG header)
+            quality: JPEG quality level
+            resolution: Image resolution (must be even number between 100 and 720)
+        """
         self.non_final_chunk_flag = non_final_chunk_flag
         self.final_chunk_flag = final_chunk_flag
         self.upright = upright
         self.is_raw = is_raw
         self.quality = quality
         self.resolution = resolution
-        self._jpeg_headers = {}  # Quality_Resolution -> header bytes mapping
 
-    async def process_data(self, char: BleakClient, callback):
-        image_data = bytearray()
-        raw_offset = 0
+        self.queue: Optional[asyncio.Queue] = None
+        self._image_data: List[int] = []
+        self._raw_offset: int = 0
 
-        # Add JPEG header if this is raw data
+    @classmethod
+    def has_jpeg_header(cls, quality: str, resolution: int) -> bool:
+        """Check if we have a stored JPEG header for the given quality and resolution"""
+        return f"{quality}_{resolution}" in cls._jpeg_header_map
+
+    def handle_data(self, data: bytes) -> None:
+        """
+        Process incoming chunks of image data.
+
+        Args:
+            data: Bytes containing image chunk with flag byte prefix
+        """
+        if not data:
+            return
+
+        if not self.queue:
+            _log.warning("Received data but queue not initialized - call start() first")
+            return
+
+        flag = data[0]
+        if flag not in (self.non_final_chunk_flag, self.final_chunk_flag):
+            return
+
+        chunk = data[1:]
+        self._image_data.extend(chunk)
+        self._raw_offset += len(chunk)
+        _log.debug(f"Chunk size: {len(chunk)}, rawOffset: {self._raw_offset}")
+
+        if flag == self.final_chunk_flag:
+            # Process complete image
+            asyncio.create_task(self._process_complete_image())
+
+    async def _process_complete_image(self) -> None:
+        """Process and queue a complete image once all chunks are received"""
         if self.is_raw:
+            # Prepend stored JPEG header for raw images
             key = f"{self.quality}_{self.resolution}"
-            if key not in self._jpeg_headers:
-                raise Exception("No JPEG header found - request full JPEG once before requesting raw")
-            image_data.extend(self._jpeg_headers[key])
+            if key not in self._jpeg_header_map:
+                raise Exception(
+                    f"No JPEG header found for quality {self.quality} "
+                    f"and resolution {self.resolution} - request full JPEG first"
+                )
+            final_image = self._jpeg_header_map[key] + bytes(self._image_data)
+        else:
+            final_image = bytes(self._image_data)
+            # Store JPEG header for future raw images
+            if self.quality is not None and self.resolution is not None:
+                key = f"{self.quality}_{self.resolution}"
+                if key not in self._jpeg_header_map:
+                    self._jpeg_header_map[key] = final_image[:623]
 
-        def notification_handler(_, data: bytearray):
-            nonlocal image_data, raw_offset
+        if self.upright:
+            # Rotate image -90 degrees
+            img = Image.open(io.BytesIO(final_image))
+            img = img.rotate(270, expand=True)
+            output = io.BytesIO()
+            img.save(output, format='JPEG')
+            final_image = output.getvalue()
 
-            if data[0] not in (self.non_final_chunk_flag, self.final_chunk_flag):
-                return
+        await self.queue.put(final_image)
 
-            image_data.extend(data[1:])
-            raw_offset += len(data) - 1
+        # Reset state
+        self._image_data.clear()
+        self._raw_offset = 0
 
-            if data[0] == self.final_chunk_flag:
-                # Save header if this is first full JPEG for this quality/resolution
-                if not self.is_raw:
-                    key = f"{self.quality}_{self.resolution}"
-                    if key not in self._jpeg_headers:
-                        self._jpeg_headers[key] = image_data[:623]
+    async def start(self) -> asyncio.Queue:
+        """
+        Start the photo handler and return a queue that will receive complete images.
 
-                # Rotate if needed
-                if self.upright:
-                    img = Image.open(io.BytesIO(image_data))
-                    img = img.rotate(270, expand=True)
-                    output = io.BytesIO()
-                    img.save(output, format='JPEG')
-                    final_data = output.getvalue()
-                else:
-                    final_data = bytes(image_data)
+        Returns:
+            asyncio.Queue that will receive bytes containing complete JPEG images
+        """
+        if self.is_raw and (self.quality is None or self.resolution is None):
+            raise ValueError("Quality and resolution required when handling raw images")
 
-                callback(final_data)
-                image_data.clear()
-                raw_offset = 0
+        self.queue = asyncio.Queue()
+        self._image_data = []
+        self._raw_offset = 0
 
-        await char.start_notify(char.uuid, notification_handler)
+        if self.is_raw:
+            # Pre-populate image data with stored JPEG header
+            key = f"{self.quality}_{self.resolution}"
+            if key in self._jpeg_header_map:
+                self._image_data.extend(self._jpeg_header_map[key])
+
+        return self.queue
+
+    def stop(self) -> None:
+        """Stop the photo handler and clean up resources"""
+        self.queue = None
+        self._image_data.clear()
+        self._raw_offset = 0
