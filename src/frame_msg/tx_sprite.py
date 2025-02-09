@@ -25,39 +25,47 @@ class TxSprite:
     pixel_data: bytes
 
     @staticmethod
-    def from_image_bytes(msg_code: int, image_bytes: bytes) -> 'TxSprite':
-        """Create a sprite from image bytes, quantizing to 16 colors if needed."""
+    def from_image_bytes(msg_code: int, image_bytes: bytes, max_pixels = 48000) -> 'TxSprite':
+        """
+        Create a sprite from the bytes of any image file format supported by PIL Image.open(),
+        quantizing and scaling to ensure it fits within max_pixels (e.g. 48,000 pixels).
+        """
         img = Image.open(io.BytesIO(image_bytes))
 
         # Convert to RGB mode if not already
         if img.mode != 'RGB':
             img = img.convert('RGB')
 
-        # Resize if needed while maintaining aspect ratio
+        # Calculate new size to fit within max_pixels while maintaining aspect ratio
+        img_pixels = img.width * img.height
+        if img_pixels > max_pixels:
+            scale_factor = (max_pixels / img_pixels) ** 0.5
+            new_width = int(img.width * scale_factor)
+            new_height = int(img.height * scale_factor)
+            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
+        # Ensure the image does not exceed 640x400 after initial scaling
         if img.width > 640 or img.height > 400:
             img.thumbnail((640, 400), Image.Resampling.NEAREST)
 
         # Quantize to 16 colors if needed
-        if not img.mode == 'P' or img.getcolors() is None or len(img.getcolors()) > 16:
+        if img.mode != 'P' or img.getcolors() is None or len(img.getcolors()) > 16:
             img = img.quantize(colors=16, method=Image.Quantize.MEDIANCUT)
 
-        # Quantized Palette comes back in a luminance gradient from lightest to darkest.
-        # Ensure darkest is at index 0 and swap the lightest from index 0 out to index 15
-        palette = list(img.getpalette()[:48])  # Get first 16 RGB colors
+        # Get first 16 RGB colors from the palette
+        palette = list(img.getpalette()[:48])
         pixel_data = np.array(img)
 
-        # Swap index 0 with index 15
+        # The quantized palette comes back in a luminance gradient from lightest to darkest.
+        # Ensure the darkest is at index 0 by swapping index 0 with index 15
         palette[0:3], palette[45:48] = palette[45:48], palette[0:3]
 
-        # And update the pixel_data to match
-        for i in range(0, pixel_data.shape[0]):
-            for j in range(0, pixel_data.shape[1]):
-                if pixel_data[i][j] == 0:
-                    pixel_data[i][j] = 15
-                elif pixel_data[i][j] == 15:
-                    pixel_data[i][j] = 0
+        # Update the pixel_data accordingly
+        pixel_data[pixel_data == 0] = 255  # Temporary value to avoid conflict
+        pixel_data[pixel_data == 15] = 0
+        pixel_data[pixel_data == 255] = 15
 
-        # set the first entry to completely black, since the display will treat it as transparent/void
+        # Set the first (darkest, not necessarily black) entry in the palette to black for transparency
         palette[0:3] = 0, 0, 0
 
         return TxSprite(
@@ -68,6 +76,7 @@ class TxSprite:
             palette_data=bytes(palette),
             pixel_data=pixel_data.tobytes()
         )
+
 
     def pack(self) -> bytes:
         """Pack the sprite into its binary format."""
