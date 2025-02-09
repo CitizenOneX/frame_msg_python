@@ -25,6 +25,35 @@ class TxSprite:
     pixel_data: bytes
 
     @staticmethod
+    def from_indexed_png_bytes(msg_code: int, image_bytes: bytes) -> 'TxSprite':
+        """Create a TxSprite from an indexed PNG with minimal processing."""
+        img = Image.open(io.BytesIO(image_bytes))
+
+        if img.mode != 'P' or len(img.getcolors()) > 16:
+            raise ValueError("PNG must be indexed with a palette of 16 colors or fewer.")
+
+        # Resize if needed while preserving aspect ratio
+        if img.width > 640 or img.height > 400:
+            img.thumbnail((640, 400), Image.Resampling.NEAREST)
+
+        # Extract palette data (only RGB, discarding alpha if present)
+        raw_palette = img.getpalette()
+        num_colors = len(img.getcolors())
+        palette_data = bytes(raw_palette[:num_colors * 3])  # Keep only RGB values
+
+        # Extract pixel data
+        pixel_data = np.array(img)
+
+        return TxSprite(
+            msg_code=msg_code,
+            width=img.width,
+            height=img.height,
+            num_colors=num_colors,
+            palette_data=palette_data,
+            pixel_data=pixel_data.tobytes()
+        )
+
+    @staticmethod
     def from_image_bytes(msg_code: int, image_bytes: bytes, max_pixels = 48000) -> 'TxSprite':
         """
         Create a sprite from the bytes of any image file format supported by PIL Image.open(),
