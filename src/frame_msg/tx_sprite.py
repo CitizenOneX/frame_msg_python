@@ -41,27 +41,24 @@ class TxSprite:
         if not img.mode == 'P' or img.getcolors() is None or len(img.getcolors()) > 16:
             img = img.quantize(colors=16, method=Image.Quantize.MEDIANCUT)
 
-        # Ensure black is at index 0 and white at index 1
+        # Quantized Palette comes back in a luminance gradient from lightest to darkest.
+        # Ensure darkest is at index 0 and swap the lightest from index 0 out to index 15
         palette = list(img.getpalette()[:48])  # Get first 16 RGB colors
         pixel_data = np.array(img)
 
-        # Move black to index 0 if not already there
-        black_idx = next((i for i in range(0, len(palette), 3)
-                         if palette[i] == 0 and palette[i+1] == 0 and palette[i+2] == 0), None)
-        if black_idx is not None and black_idx != 0:
-            # Swap colors in palette
-            palette[0:3], palette[black_idx:black_idx+3] = palette[black_idx:black_idx+3], palette[0:3]
-            # Update pixel data
-            pixel_data[pixel_data == black_idx//3] = 0
-            pixel_data[pixel_data == 0] = black_idx//3
+        # Swap index 0 with index 15
+        palette[0:3], palette[45:48] = palette[45:48], palette[0:3]
 
-        # Similar for white at index 1
-        white_idx = next((i for i in range(0, len(palette), 3)
-                         if palette[i] == 255 and palette[i+1] == 255 and palette[i+2] == 255), None)
-        if white_idx is not None and white_idx != 3:
-            palette[3:6], palette[white_idx:white_idx+3] = palette[white_idx:white_idx+3], palette[3:6]
-            pixel_data[pixel_data == white_idx//3] = 1
-            pixel_data[pixel_data == 1] = white_idx//3
+        # And update the pixel_data to match
+        for i in range(0, pixel_data.shape[0]):
+            for j in range(0, pixel_data.shape[1]):
+                if pixel_data[i][j] == 0:
+                    pixel_data[i][j] = 15
+                elif pixel_data[i][j] == 15:
+                    pixel_data[i][j] = 0
+
+        # set the first entry to completely black, since the display will treat it as transparent/void
+        palette[0:3] = 0, 0, 0
 
         return TxSprite(
             msg_code=msg_code,
