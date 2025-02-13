@@ -28,7 +28,7 @@ _M.parsers = parsers
 -- The message codes and message length fields are not included in the accumulated chunks.
 -- When the message is fully received, the full concatenated bytes are saved in the block
 -- table associated to the message type, so no need to pass on the length or message type in the payload
--- TODO add reliability features (packet acknowledgement or dropped packet retransmission requests, message and packet sequence numbers)
+-- TODO add reliability features (packet acknowledgement is present, but dropped packet retransmission requests, message and packet sequence numbers are possible)
 function _M.update_app_data_accum(data)
     rc, err = pcall(
         function()
@@ -80,6 +80,10 @@ function _M.update_app_data_accum(data)
         -- rethrow the error, especially important to propagate the break signal to stop execution
         error(err)
     end
+
+    -- send some data back as an ACK for receiver-paced flow control
+    -- and send_message() must use await_data=True
+    frame.bluetooth.send('\x01')
 end
 
 -- register the handler as a callback for all data sent from the host
