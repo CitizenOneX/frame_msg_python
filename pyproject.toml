@@ -4,9 +4,9 @@ build-backend = "hatchling.build"
 
 [project]
 name = "frame-msg"
-version = "0.1.0"
+version = "1.0.0"
 authors = [
-    { name = "CitizenOne", email = "17427385+CitizenOneX@users.noreply.github.com" },
+    { name = "CitizenOne" },
 ]
 description = "Handles various message types for the Brilliant Labs Frame"
 readme = "README.md"
