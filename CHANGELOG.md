@@ -1,7 +1,3 @@
-## 0.1.1
-
-* Updated README.md
-
 ## 0.1.0
 
-* Initial version adapted from frame-utilities-for-python
+* Initial version adapted from [the Flutter implementation](https://pub.dev/packages/frame_msg)
