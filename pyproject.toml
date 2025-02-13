@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "frame_msg"
+name = "frame-msg"
 version = "0.1.0"
 authors = [
     { name = "CitizenOne", email = "17427385+CitizenOneX@users.noreply.github.com" },
