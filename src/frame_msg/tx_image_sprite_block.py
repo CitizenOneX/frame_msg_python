@@ -63,7 +63,7 @@ class TxImageSpriteBlock:
         if not self.sprite_lines:
             raise Exception("No sprite lines to pack")
 
-        return struct.pack('>BHHHHBB',
+        return struct.pack('>BHHHBB',
             0xFF,  # Block marker
             self.image.width,
             self.image.height,
