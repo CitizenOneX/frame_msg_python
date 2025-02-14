@@ -1,3 +1,8 @@
+## 1.0.1
+
+* Fixed bug in image sprite block packing.
+  TxSprite, TxImageSpriteBlock, RxPhoto available.
+
 ## 1.0.0
 
 * First PyPI package release. TxSprite available, most Tx/Rx types unavailable.
