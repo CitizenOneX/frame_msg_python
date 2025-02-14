@@ -94,9 +94,9 @@ class RxPhoto:
                     self._jpeg_header_map[key] = final_image[:623]
 
         if self.upright:
-            # Rotate image -90 degrees
+            # Rotate image -90 degrees (or 90 degrees counterclockwise, in PIL)
             img = Image.open(io.BytesIO(final_image))
-            img = img.rotate(270, expand=True)
+            img = img.transpose(Image.ROTATE_90)
             output = io.BytesIO()
             img.save(output, format='JPEG')
             final_image = output.getvalue()
