@@ -10,13 +10,11 @@ class TxImageSpriteBlock:
     An image split into horizontal sprite strips.
 
     Attributes:
-        msg_code: Message type identifier
         image: Source sprite to split
         sprite_line_height: Height of each sprite strip
         progressive_render: Whether to render lines as they arrive
         updatable: Whether lines can be updated after initial render
     """
-    msg_code: int
     image: TxSprite
     sprite_line_height: int
     progressive_render: bool = True
@@ -37,7 +35,6 @@ class TxImageSpriteBlock:
             line_pixels = pixels[start_y:start_y + self.sprite_line_height]
 
             self.sprite_lines.append(TxSprite(
-                msg_code=self.msg_code,
                 width=self.image.width,
                 height=self.sprite_line_height,
                 num_colors=self.image.num_colors,
@@ -50,7 +47,6 @@ class TxImageSpriteBlock:
         if remaining_height > 0:
             final_line = pixels[-remaining_height:]
             self.sprite_lines.append(TxSprite(
-                msg_code=self.msg_code,
                 width=self.image.width,
                 height=remaining_height,
                 num_colors=self.image.num_colors,

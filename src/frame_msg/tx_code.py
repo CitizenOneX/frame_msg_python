@@ -6,7 +6,6 @@ class TxCode:
     A simple message containing only a message code and an optional byte value.
     Used for signaling the frameside app to take some action.
     """
-    msg_code: int
     value: int = 0
 
     def pack(self) -> bytes:

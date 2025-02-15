@@ -10,14 +10,12 @@ class TxSprite:
     A sprite message containing image data with a custom palette.
 
     Attributes:
-        msg_code: Message type identifier
         width: Width of the sprite in pixels
         height: Height of the sprite in pixels
         num_colors: Number of colors in the palette (2, 4, or 16)
         palette_data: RGB values for each color (3 bytes per color)
         pixel_data: Array of palette indices for each pixel
     """
-    msg_code: int
     width: int
     height: int
     num_colors: int
@@ -25,7 +23,7 @@ class TxSprite:
     pixel_data: bytes
 
     @staticmethod
-    def from_indexed_png_bytes(msg_code: int, image_bytes: bytes) -> 'TxSprite':
+    def from_indexed_png_bytes(image_bytes: bytes) -> 'TxSprite':
         """Create a TxSprite from an indexed PNG with minimal processing."""
         img = Image.open(io.BytesIO(image_bytes))
 
@@ -45,7 +43,6 @@ class TxSprite:
         pixel_data = np.array(img)
 
         return TxSprite(
-            msg_code=msg_code,
             width=img.width,
             height=img.height,
             num_colors=num_colors,
@@ -54,7 +51,7 @@ class TxSprite:
         )
 
     @staticmethod
-    def from_image_bytes(msg_code: int, image_bytes: bytes, max_pixels = 48000) -> 'TxSprite':
+    def from_image_bytes(image_bytes: bytes, max_pixels = 48000) -> 'TxSprite':
         """
         Create a sprite from the bytes of any image file format supported by PIL Image.open(),
         quantizing and scaling to ensure it fits within max_pixels (e.g. 48,000 pixels).
@@ -98,7 +95,6 @@ class TxSprite:
         palette[0:3] = 0, 0, 0
 
         return TxSprite(
-            msg_code=msg_code,
             width=img.width,
             height=img.height,
             num_colors=16,

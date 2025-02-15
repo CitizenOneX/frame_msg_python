@@ -7,14 +7,12 @@ class TxManualExpSettings:
     Message for manual exposure and gain settings.
 
     Attributes:
-        msg_code: Message type identifier
         manual_shutter: Shutter value (4-16383)
         manual_analog_gain: Analog gain value (0-248)
         manual_red_gain: Red gain value (0-1023)
         manual_green_gain: Green gain value (0-1023)
         manual_blue_gain: Blue gain value (0-1023)
     """
-    msg_code: int
     manual_shutter: int = 800
     manual_analog_gain: int = 124
     manual_red_gain: int = 512

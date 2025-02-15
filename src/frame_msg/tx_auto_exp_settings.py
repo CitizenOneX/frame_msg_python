@@ -7,7 +7,6 @@ class TxAutoExpSettings:
     Message for auto exposure and gain settings.
 
     Attributes:
-        msg_code: Message type identifier
         metering_index: Index into ['SPOT', 'CENTER_WEIGHTED', 'AVERAGE']
         exposure: Target exposure value (0.0-1.0)
         exposure_speed: Speed of exposure adjustments (0.0-1.0)
@@ -15,7 +14,6 @@ class TxAutoExpSettings:
         analog_gain_limit: Maximum analog gain value (0-248)
         white_balance_speed: Speed of white balance adjustments (0.0-1.0)
     """
-    msg_code: int
     metering_index: int = 2
     exposure: float = 0.18
     exposure_speed: float = 0.5

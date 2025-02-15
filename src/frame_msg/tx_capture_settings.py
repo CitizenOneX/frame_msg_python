@@ -7,13 +7,11 @@ class TxCaptureSettings:
     Message for camera capture settings.
 
     Attributes:
-        msg_code: Message type identifier
         resolution: Image resolution (100-720, must be even)
         quality_index: Index into [VERY_LOW, LOW, MEDIUM, HIGH, VERY_HIGH]
         pan: Image pan value (-140 to 140)
         raw: Whether to capture in RAW format
     """
-    msg_code: int
     resolution: int = 512
     quality_index: int = 4
     pan: int = 0

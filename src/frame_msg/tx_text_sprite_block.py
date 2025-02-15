@@ -9,14 +9,12 @@ class TxTextSpriteBlock:
     A block of text rendered as sprites.
 
     Attributes:
-        msg_code: Message type identifier
         width: Width constraint for text layout
         font_size: Font size in pixels
         max_display_rows: Maximum number of rows to display
         text: The text to render
         font_family: Optional font family name
     """
-    msg_code: int
     width: int
     font_size: int
     max_display_rows: int
@@ -56,7 +54,6 @@ class TxTextSpriteBlock:
 
             # Convert to TxSprite with 2-color palette
             sprite = TxSprite(
-                msg_code=self.msg_code,
                 width=line_img.width,
                 height=line_img.height,
                 num_colors=2,
