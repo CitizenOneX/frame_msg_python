@@ -34,11 +34,6 @@ async def main():
     try:
         await frame.connect()
 
-        # attach the print response handler so we can see stdout from Frame Lua print() statements
-        # any await_print=True commands will echo the acknowledgement byte (e.g. "1"), so one can assign
-        # the handler after the frameside app is running to remove that noise from the log
-        frame._user_print_response_handler = print
-
         # Send a break signal to Frame in case it has a loop running from another app
         await frame.send_break_signal()
 
@@ -57,6 +52,11 @@ async def main():
         # We rename the file slightly when we copy it, although it isn't necessary
         await frame.upload_file("lua/sprite_frame_app.lua", "frame_app.lua")
 
+        # attach the print response handler so we can see stdout from Frame Lua print() statements
+        # any await_print=True commands will echo the acknowledgement byte (e.g. "1"), so one can assign
+        # the handler after the frameside app is running to remove that noise from the log
+        frame._user_print_response_handler = print
+
         # "require" the main lua file to run it
         # Note: we can't await_print here because the require() doesn't return - it has a main loop
         await frame.send_lua("require('frame_app')", await_print=False)
@@ -72,16 +72,16 @@ async def main():
 
         # send the 1-bit image to Frame in chunks
         # Note that the frameside app is expecting a message of type TxSprite on msgCode 0x20
-        sprite = TxSprite.from_indexed_png_bytes(0x20, Path("images/logo_1bit.png").read_bytes())
-        await frame.send_message(sprite.msg_code, sprite.pack())
+        sprite = TxSprite.from_indexed_png_bytes(Path("images/logo_1bit.png").read_bytes())
+        await frame.send_message(0x20, sprite.pack())
 
         # send a 2-bit image
-        sprite = TxSprite.from_indexed_png_bytes(0x20, Path("images/street_2bit.png").read_bytes())
-        await frame.send_message(sprite.msg_code, sprite.pack())
+        sprite = TxSprite.from_indexed_png_bytes(Path("images/street_2bit.png").read_bytes())
+        await frame.send_message(0x20, sprite.pack())
 
         # send a 4-bit image
-        sprite = TxSprite.from_indexed_png_bytes(0x20, Path("images/hotdog_4bit.png").read_bytes())
-        await frame.send_message(sprite.msg_code, sprite.pack())
+        sprite = TxSprite.from_indexed_png_bytes(Path("images/hotdog_4bit.png").read_bytes())
+        await frame.send_message(0x20, sprite.pack())
 
         await asyncio.sleep(5.0)
 

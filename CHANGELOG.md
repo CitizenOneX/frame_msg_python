@@ -1,3 +1,7 @@
+## 2.0.0
+
+* Breaking: removed redundant `msg_code` attribute from Tx classes - pass the `msg_code` independently to `frame.send_message()`
+
 ## 1.0.1
 
 * Fixed bug in image sprite block packing.
