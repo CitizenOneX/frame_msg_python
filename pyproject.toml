@@ -29,3 +29,4 @@ include = [
 [project.urls]
 "Homepage" = "https://github.com/CitizenOneX/frame_msg_python"
 "Bug Tracker" = "https://github.com/CitizenOneX/frame_msg_python/issues"
+"Changelog" = "https://github.com/CitizenOneX/frame_msg_python/blob/main/CHANGELOG.md"
