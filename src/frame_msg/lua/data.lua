@@ -72,18 +72,20 @@ function _M.update_app_data_accum(data)
                     _M.app_data_accum[msg_flag] = item
                 end
             end
+
+            -- send some data back as an ACK for receiver-paced flow control
+            -- and send_message() must use await_data=True
+            frame.bluetooth.send('\x00')
+
         end
     )
     if rc == false then
         -- send the error back on the stdout stream otherwise the data handler thread fails silently
         print('Error in data accumulator: ' .. err)
+        frame.bluetooth.send('\x01')
         -- rethrow the error, especially important to propagate the break signal to stop execution
         error(err)
     end
-
-    -- send some data back as an ACK for receiver-paced flow control
-    -- and send_message() must use await_data=True
-    frame.bluetooth.send('\x01')
 end
 
 -- register the handler as a callback for all data sent from the host
