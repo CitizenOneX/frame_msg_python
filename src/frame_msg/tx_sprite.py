@@ -3,6 +3,7 @@ import struct
 import numpy as np
 from PIL import Image
 import io
+import lz4.frame
 
 @dataclass
 class TxSprite:
@@ -21,9 +22,10 @@ class TxSprite:
     num_colors: int
     palette_data: bytes
     pixel_data: bytes
+    compress: bool = False
 
     @staticmethod
-    def from_indexed_png_bytes(image_bytes: bytes) -> 'TxSprite':
+    def from_indexed_png_bytes(image_bytes: bytes, compress=False) -> 'TxSprite':
         """Create a TxSprite from an indexed PNG with minimal processing."""
         img = Image.open(io.BytesIO(image_bytes))
 
@@ -47,11 +49,12 @@ class TxSprite:
             height=img.height,
             num_colors=num_colors,
             palette_data=palette_data,
-            pixel_data=pixel_data.tobytes()
+            pixel_data=pixel_data.tobytes(),
+            compress=compress
         )
 
     @staticmethod
-    def from_image_bytes(image_bytes: bytes, max_pixels = 48000) -> 'TxSprite':
+    def from_image_bytes(image_bytes: bytes, max_pixels = 48000, compress=False) -> 'TxSprite':
         """
         Create a sprite from the bytes of any image file format supported by PIL Image.open(),
         quantizing and scaling to ensure it fits within max_pixels (e.g. 48,000 pixels).
@@ -99,9 +102,21 @@ class TxSprite:
             height=img.height,
             num_colors=16,
             palette_data=bytes(palette),
-            pixel_data=pixel_data.tobytes()
+            pixel_data=pixel_data.tobytes(),
+            compress=compress
         )
 
+    @property
+    def bpp(self) -> int:
+        """Bits per pixel based on the number of colors."""
+        if self.num_colors <= 2:
+            return 1
+        elif self.num_colors <= 4:
+            return 2
+        elif self.num_colors <= 16:
+            return 4
+        else:
+            raise ValueError(f"num_colors must be equal to or less than 16: {self.num_colors}")
 
     def pack(self) -> bytes:
         """Pack the sprite into its binary format."""
@@ -120,12 +135,16 @@ class TxSprite:
         packed_pixels = pack_func(self.pixel_data)
 
         # Create header
-        header = struct.pack('>HHBB',
+        header = struct.pack('>HHBBB',
             self.width,
             self.height,
+            int(self.compress),
             bpp,
             self.num_colors
         )
+
+        if self.compress:
+            packed_pixels = lz4.frame.compress(packed_pixels, compression_level=9)
 
         return header + self.palette_data + packed_pixels
 

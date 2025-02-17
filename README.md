@@ -7,7 +7,7 @@ A Python package for handling various types of messages for the Brilliant Labs F
 ## Installation
 
 ```bash
-pip install frame-msg
+pip install frame-msg lz4
 ```
 
 ## Usage
