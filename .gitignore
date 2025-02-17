@@ -19,3 +19,4 @@ wheels/
 .installed.cfg
 *.egg
 .pytest_cache/
+.venv/
