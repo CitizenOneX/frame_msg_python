@@ -1,0 +1,1 @@
+local a={}local b=0x09;function a.send_tap()rc,err=pcall(frame.bluetooth.send,string.char(b))if rc==false then print(err)end end;return a

@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import time
-from typing import Callable, Optional
+from typing import Optional
 
 logging.basicConfig()
 _log = logging.getLogger("RxTap")
@@ -22,7 +22,7 @@ class RxTap:
         self._tap_count = 0
         self._threshold_task: Optional[asyncio.Task] = None
 
-    def _reset_threshold_timer(self) -> None:
+    async def _reset_threshold_timer(self) -> None:
         """Cancel existing threshold timer and start a new one"""
         if self._threshold_task and not self._threshold_task.done():
             self._threshold_task.cancel()
@@ -39,35 +39,33 @@ class RxTap:
         except asyncio.CancelledError:
             pass
 
-    def get_callback(self) -> Callable[[bytes], None]:
+    def handle_data(self, data: bytes) -> None:
         """
-        Returns a callback function that can be used to process incoming data packets.
-        The callback will filter for tap events and aggregate them within the threshold window.
+        Process an incoming Tap message
 
-        Returns:
-            Callable that takes a bytes parameter containing the data packet
+        Args:
+            data: A single byte with the tap_flag prefix
         """
-        def handle_data(data: bytes) -> None:
-            # Check if this is a tap event
-            if not data or data[0] != self.tap_flag:
-                return
+        # Check if this is a tap event
+        if not data or data[0] != self.tap_flag:
+            return
 
-            current_time = time.time()
+        if not self.queue:
+            _log.warning("Received data but queue not initialized - call start() first")
+            return
 
-            # Debounce taps that occur too close together (40ms)
-            if current_time - self._last_tap_time < 0.04:
-                _log.debug('Tap ignored - debouncing')
-                self._last_tap_time = current_time
-                return
+        current_time = time.time()
 
-            _log.debug('Tap detected')
+        # Debounce taps that occur too close together (40ms)
+        if current_time - self._last_tap_time < 0.04:
             self._last_tap_time = current_time
-            self._tap_count += 1
+            return
 
-            # Reset the threshold timer
-            asyncio.create_task(self._reset_threshold_timer())
+        self._last_tap_time = current_time
+        self._tap_count += 1
 
-        return handle_data
+        # Reset the threshold timer
+        asyncio.create_task(self._reset_threshold_timer())
 
     async def start(self) -> asyncio.Queue:
         """
