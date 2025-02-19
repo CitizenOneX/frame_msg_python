@@ -68,7 +68,6 @@ class RxPhoto:
         chunk = data[1:]
         self._image_data.extend(chunk)
         self._raw_offset += len(chunk)
-        _log.debug(f"Chunk size: {len(chunk)}, rawOffset: {self._raw_offset}")
 
         if flag == self.final_chunk_flag:
             # Process complete image
