@@ -1,3 +1,7 @@
+## 2.2.0
+
+* Added `RxTap` and the corresponding `tap.lua` library to receive taps and multi-taps from Frame
+
 ## 2.1.0
 
 * Added support for lz4 compression of sprites and image sprite blocks
