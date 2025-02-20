@@ -4,6 +4,8 @@ frame_msg - Frame Message Package defines Transmit- and Receive-related frame me
 
 __version__ = "0.0.1"
 
+from .frame_msg import FrameMsg
+
 from .tx_auto_exp_settings import TxAutoExpSettings
 from .tx_capture_settings import TxCaptureSettings
 from .tx_code import TxCode
