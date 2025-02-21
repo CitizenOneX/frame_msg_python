@@ -4,6 +4,8 @@ import struct
 from typing import Optional
 from io import BytesIO
 
+from frame_msg import FrameMsg
+
 logging.basicConfig()
 _log = logging.getLogger("RxAudio")
 
@@ -49,7 +51,7 @@ class RxAudio:
             return
 
         chunk = data[1:]
-        _log.debug(f"Chunk size: {len(chunk)}, rawOffset: {self._raw_offset}")
+        #_log.debug(f"Chunk size: {len(chunk)}, rawOffset: {self._raw_offset}")
 
         if self.streaming:
             if len(chunk) > 0:
@@ -76,9 +78,9 @@ class RxAudio:
                 # Signal end with None
                 asyncio.create_task(self.queue.put(None))
 
-    async def start(self) -> asyncio.Queue:
+    async def attach(self, frame: FrameMsg) -> asyncio.Queue:
         """
-        Start the audio handler and return a queue that will receive audio data.
+        Attach the audio handler to the Frame data response and return a queue that will receive audio data.
 
         Returns:
             asyncio.Queue that will receive bytes containing audio data.
@@ -89,10 +91,16 @@ class RxAudio:
         self.queue = asyncio.Queue()
         self._audio_buffer = BytesIO()
         self._raw_offset = 0
+
+        # subscribe to the data response feed
+        frame.register_data_response_handler(self, self.handle_data)
+
         return self.queue
 
-    def stop(self) -> None:
-        """Stop the audio handler and clean up resources"""
+    def detach(self, frame: FrameMsg) -> None:
+        """Detach the audio handler from the Frame data response and clean up resources"""
+        # unsubscribe from the data response feed
+        frame.unregister_data_response_handler(self)
         self.queue = None
         self._audio_buffer = BytesIO()
         self._raw_offset = 0
