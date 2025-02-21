@@ -5,7 +5,7 @@ import struct
 from typing import Optional, Tuple
 from dataclasses import dataclass
 
-from frame_msg.frame_msg import FrameMsg
+from frame_msg import FrameMsg
 
 logging.basicConfig()
 _log = logging.getLogger("RxIMU")
