@@ -2,6 +2,7 @@ import asyncio
 import logging
 import time
 from typing import Optional
+from frame_msg import FrameMsg
 
 logging.basicConfig()
 _log = logging.getLogger("RxTap")
@@ -67,9 +68,9 @@ class RxTap:
         # Reset the threshold timer
         asyncio.create_task(self._reset_threshold_timer())
 
-    async def start(self) -> asyncio.Queue:
+    async def attach(self, frame: FrameMsg) -> asyncio.Queue:
         """
-        Start the tap handler and return a queue that will receive tap counts.
+        Attach the tap handler to the Frame data response and return a queue that will receive tap counts.
 
         Returns:
             asyncio.Queue that will receive integers representing tap counts
@@ -77,10 +78,16 @@ class RxTap:
         self.queue = asyncio.Queue()
         self._last_tap_time = 0
         self._tap_count = 0
+
+        # subscribe for notifications
+        # TODO could add a set of msg_codes in subscription message, or just filter in handle_data
+        frame.register_data_response_handler(self, self.handle_data)
+
         return self.queue
 
-    def stop(self) -> None:
-        """Stop the tap handler and clean up resources"""
+    def detach(self, frame: FrameMsg) -> None:
+        """Detach the tap handler from the Frame data response and clean up resources"""
+        frame.unregister_data_response_handler(self)
         if self._threshold_task and not self._threshold_task.done():
             self._threshold_task.cancel()
         self.queue = None

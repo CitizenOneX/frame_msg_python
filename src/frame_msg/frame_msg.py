@@ -50,12 +50,9 @@ class FrameMsg:
             raise e
 
 
-    async def disconnect(self, clean_up:bool=True):
-        """Disconnect from the Frame device and optionally send a break/reset to reboot into `main.lua`."""
+    async def disconnect(self):
+        """Disconnect from the Frame device"""
         if self.ble.is_connected():
-            if clean_up:
-                await self.ble.send_break_signal()
-                await self.ble.send_reset_signal()
             await self.ble.disconnect()
 
     def is_connected(self):
@@ -95,6 +92,20 @@ class FrameMsg:
         and without waiting for any printed confirmation that the frameside app is ready.
         """
         await self.ble.send_lua(f"require('{frame_app_name}')", await_print=await_print)
+
+    async def stop_frame_app(self, reset=True):
+        """
+        Sends a break signal to terminate the running main loop on Frame, if applicable.
+        A custom app may prefer to send a specific TxCode to the Frameside app to instruct it
+        to shut down cleanly, but a break signal will also be caught by the exception handler
+        of the main loop and is enough to clean up the display, release memory etc.
+
+        If `reset` is True (default), then also send a reset signal that will reinitialize the Lua VM
+        and boot into a saved `main.lua`, if present.
+        """
+        await self.ble.send_break_signal()
+        if reset:
+            await self.ble.send_reset_signal()
 
     def attach_print_response_handler(self, handler=print):
         """Attach the print response handler so we can see stdout from Frame Lua print() statements"""

@@ -5,6 +5,8 @@ import struct
 from typing import Optional, Tuple
 from dataclasses import dataclass
 
+from frame_msg.frame_msg import FrameMsg
+
 logging.basicConfig()
 _log = logging.getLogger("RxIMU")
 
@@ -115,16 +117,22 @@ class RxIMU:
         # Queue the data
         asyncio.create_task(self.queue.put(imu_data))
 
-    async def start(self) -> asyncio.Queue:
+    async def attach(self, frame: FrameMsg) -> asyncio.Queue:
         """
-        Start the IMU handler and return a queue that will receive IMU data.
+        Attach the IMU handler to the Frame data response and return a queue that will receive IMU data.
 
         Returns:
             asyncio.Queue that will receive IMUData objects
         """
         self.queue = asyncio.Queue()
+
+        # subscribe for notifications
+        # TODO could add a set of msg_codes in subscription message, or just filter in handle_data
+        frame.register_data_response_handler(self, self.handle_data)
+
         return self.queue
 
-    def stop(self) -> None:
-        """Stop the IMU handler and clean up resources"""
+    def detach(self, frame: FrameMsg) -> None:
+        """Detach the IMU handler from the Frame data response and clean up resources"""
+        frame.unregister_data_response_handler(self)
         self.queue = None

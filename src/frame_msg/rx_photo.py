@@ -3,6 +3,7 @@ import logging
 from typing import Dict, List, Optional
 import PIL.Image as Image
 import io
+from frame_msg import FrameMsg
 
 logging.basicConfig()
 _log = logging.getLogger("RxPhoto")
@@ -106,9 +107,9 @@ class RxPhoto:
         self._image_data.clear()
         self._raw_offset = 0
 
-    async def start(self) -> asyncio.Queue:
+    async def attach(self, frame: FrameMsg) -> asyncio.Queue:
         """
-        Start the photo handler and return a queue that will receive complete images.
+        Attach the photo handler to the Frame data response and return a queue that will receive complete images.
 
         Returns:
             asyncio.Queue that will receive bytes containing complete JPEG images
@@ -126,10 +127,15 @@ class RxPhoto:
             if key in self._jpeg_header_map:
                 self._image_data.extend(self._jpeg_header_map[key])
 
+        # subscribe for notifications
+        # TODO could add a set of msg_codes in subscription message, or just filter in handle_data
+        frame.register_data_response_handler(self, self.handle_data)
+
         return self.queue
 
-    def stop(self) -> None:
-        """Stop the photo handler and clean up resources"""
+    def detach(self, frame: FrameMsg) -> None:
+        """Detach the photo handler from the Frame data response and clean up resources"""
+        frame.unregister_data_response_handler(self)
         self.queue = None
         self._image_data.clear()
         self._raw_offset = 0
