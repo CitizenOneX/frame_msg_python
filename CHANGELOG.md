@@ -1,3 +1,9 @@
+## 3.0.0
+
+* Initial version of `FrameMsg` wrapper for FrameBle with added lifecycle and convenience functions for loading standard Lua helpers
+* Reworked receive (Rx) handlers to attach and detach from the data response stream (only one Rx listener supported at the moment)
+* Added `RxAudio` and `audio.lua` for handling streaming audio from Frame
+
 ## 2.2.0
 
 * Added `RxTap` and the corresponding `tap.lua` library to receive taps and multi-taps from Frame
