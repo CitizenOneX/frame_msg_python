@@ -21,18 +21,10 @@ async def main():
     Displays sample images on the Frame display.
 
     The images are indexed (palette) PNG images, in 2, 4, and 16 colors (that is, 1-, 2- and 4-bits-per-pixel).
-
-    They are using the standard palette from the Frame firmware. If you want to display sprites that have
-    palettes of other colors, the frameside app must call `sprite.set_palette()` (which lua/sprite_frame_app.lua does)
-    or call the underlying `frame.display.assign_color()` before the `frame.display.bitmap()` call.
     """
     frame = FrameMsg()
     try:
         await frame.connect()
-
-        # debug only: check our current battery level and memory usage (which varies between 16kb and 31kb or so even after the VM init)
-        batt_mem = await frame.send_lua('print(frame.battery_level() .. " / " .. collectgarbage("count"))', await_print=True)
-        print(f"Battery Level/Memory used: {batt_mem}")
 
         # Let the user know we're starting
         await frame.print_short_text('Loading...')
@@ -44,22 +36,12 @@ async def main():
         await frame.upload_frame_app(local_filename="lua/sprite_frame_app.lua")
 
         # attach the print response handler so we can see stdout from Frame Lua print() statements
-        # If we assigned this handler before the frameside app was running,
-        # any await_print=True commands will echo the acknowledgement byte (e.g. "1"), but if we assign
-        # the handler now we'll see any lua exceptions (or stdout print statements)
         frame.attach_print_response_handler()
 
         # "require" the main frame_app lua file to run it, and block until it has started.
-        # It signals that it is ready by sending something on the string response channel.
         await frame.start_frame_app()
 
-        # NOTE: Now that the Frameside app has started there is no need to send snippets of Lua
-        # code directly (in fact, we would need to send a break_signal if we wanted to because
-        # the main app loop on Frame is running).
-        # From this point we do message-passing with first-class types and send_message() (or send_data())
-
         # send the 1-bit image to Frame in chunks
-        # Note that the frameside app is expecting a message of type TxSprite on msgCode 0x20
         sprite = TxSprite.from_indexed_png_bytes(Path("images/logo_1bit.png").read_bytes())
         await frame.send_message(0x20, sprite.pack())
 
