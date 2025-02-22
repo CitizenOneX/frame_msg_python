@@ -75,14 +75,26 @@ function _M.update_app_data_accum(data)
 
             -- send some data back as an ACK for receiver-paced flow control
             -- and send_message() must use await_data=True
-            frame.bluetooth.send('\x00')
+            while true do
+                -- If the Bluetooth is busy, this simply tries again until it gets through
+                if (pcall(frame.bluetooth.send, '\x00')) then
+                    break
+                end
+                frame.sleep(0.0025)
+            end
 
         end
     )
     if rc == false then
         -- send the error back on the stdout stream otherwise the data handler thread fails silently
         print('Error in data accumulator: ' .. err)
-        frame.bluetooth.send('\x01')
+        while true do
+            -- If the Bluetooth is busy, this simply tries again until it gets through
+            if (pcall(frame.bluetooth.send, '\x01')) then
+                break
+            end
+            frame.sleep(0.0025)
+        end
         -- rethrow the error, especially important to propagate the break signal to stop execution
         error(err)
     end
