@@ -83,14 +83,8 @@ class RxIMU:
         Args:
             data: Bytes containing IMU data with flag byte prefix
         """
-        if not data:
-            return
-
         if not self.queue:
             _log.warning("Received data but queue not initialized - call start() first")
-            return
-
-        if data[0] != self.imu_flag:
             return
 
         # Parse six signed 16-bit integers from the data starting at offset 2
@@ -127,8 +121,7 @@ class RxIMU:
         self.queue = asyncio.Queue()
 
         # subscribe for notifications
-        # TODO could add a set of msg_codes in subscription message, or just filter in handle_data
-        frame.register_data_response_handler(self, self.handle_data)
+        frame.register_data_response_handler(self, [self.imu_flag], self.handle_data)
 
         return self.queue
 

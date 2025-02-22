@@ -55,18 +55,13 @@ class RxPhoto:
         Args:
             data: Bytes containing image chunk with flag byte prefix
         """
-        if not data:
-            return
-
         if not self.queue:
             _log.warning("Received data but queue not initialized - call start() first")
             return
 
         flag = data[0]
-        if flag not in (self.non_final_chunk_flag, self.final_chunk_flag):
-            return
-
         chunk = data[1:]
+
         self._image_data.extend(chunk)
         self._raw_offset += len(chunk)
 
@@ -128,8 +123,7 @@ class RxPhoto:
                 self._image_data.extend(self._jpeg_header_map[key])
 
         # subscribe for notifications
-        # TODO could add a set of msg_codes in subscription message, or just filter in handle_data
-        frame.register_data_response_handler(self, self.handle_data)
+        frame.register_data_response_handler(self, [self.non_final_chunk_flag, self.final_chunk_flag], self.handle_data)
 
         return self.queue
 

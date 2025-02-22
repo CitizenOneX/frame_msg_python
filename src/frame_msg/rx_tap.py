@@ -47,10 +47,6 @@ class RxTap:
         Args:
             data: A single byte with the tap_flag prefix
         """
-        # Check if this is a tap event
-        if not data or data[0] != self.tap_flag:
-            return
-
         if not self.queue:
             _log.warning("Received data but queue not initialized - call start() first")
             return
@@ -80,8 +76,7 @@ class RxTap:
         self._tap_count = 0
 
         # subscribe for notifications
-        # TODO could add a set of msg_codes in subscription message, or just filter in handle_data
-        frame.register_data_response_handler(self, self.handle_data)
+        frame.register_data_response_handler(self, [self.tap_flag], self.handle_data)
 
         return self.queue
 

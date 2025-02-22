@@ -2,6 +2,7 @@ from typing import List
 from importlib.resources import files
 
 from frame_ble import FrameBle
+from typing import Callable
 
 class FrameMsg:
     """
@@ -10,8 +11,9 @@ class FrameMsg:
 
     """
     def __init__(self):
-        """Initialize the FrameMsg class with a new FrameBle instance."""
+        """Initialize the FrameMsg class with a new FrameBle instance and a dictionary for registered data response handlers."""
         self.ble = FrameBle()
+        self.data_response_handlers = {}
 
     async def connect(self, initialize:bool=True):
         """
@@ -28,7 +30,7 @@ class FrameMsg:
             Any exceptions from the underlying FrameBle connection
         """
         try:
-            await self.ble.connect()
+            await self.ble.connect(data_response_handler=self._handle_data_response)
 
             if initialize:
                 # Send break signal in case an application loop is running
@@ -125,19 +127,47 @@ class FrameMsg:
         """
         await self.ble.send_message(msg_code, payload, show_me)
 
-    def register_data_response_handler(self, subscriber, handler):
+    def register_data_response_handler(self, subscriber, msg_codes: List[int], handler: Callable[[bytes], None]):
         """
-        TODO: maintain a dictionary of subscribers with handler messages
-        rather than overwrite a single user data handler in self.ble
+        Register a handler for a subscriber that is interested in specific msg codes.
+
+        Args:
+            subscriber: The subscriber object.
+            msg_codes (List[int]): List of single byte msg codes the subscriber is interested in.
+            handler: The handler function to receive the data.
         """
-        self.ble._user_data_response_handler = handler
+        for code in msg_codes:
+            if code not in self.data_response_handlers:
+                self.data_response_handlers[code] = []
+            self.data_response_handlers[code].append((subscriber, handler))
 
     def unregister_data_response_handler(self, subscriber):
         """
-        TODO: maintain a dictionary of subscribers with handler messages
-        rather than overwrite a single user data handler in self.ble
+        Unregister a subscriber from receiving data responses.
+
+        Args:
+            subscriber: The subscriber object to unregister.
         """
-        self.ble._user_data_response_handler = None
+        for code in list(self.data_response_handlers.keys()):
+            self.data_response_handlers[code] = [
+                (sub, handler) for sub, handler in self.data_response_handlers[code] if sub != subscriber
+            ]
+            if not self.data_response_handlers[code]:
+                del self.data_response_handlers[code]
+
+    async def _handle_data_response(self, data: bytes):
+        """
+        Internal method to handle incoming data responses and dispatch to the appropriate handlers.
+
+        Args:
+            data (bytes): The incoming data response.
+        """
+        if data:
+            msg_code = data[0]
+            if msg_code in self.data_response_handlers:
+                for subscriber, handler in self.data_response_handlers[msg_code]:
+                    # not awaited, synchronous call
+                    handler(data)
 
     def __getattr__(self, name):
         """

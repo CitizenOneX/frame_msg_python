@@ -34,24 +34,17 @@ class RxAudio:
 
     def handle_data(self, data: bytes) -> None:
         """
-        Process incoming audio data packets.
+        Process incoming audio data packets with either a non-final or a final msg code.
 
         Args:
             data: Bytes containing audio data with flag byte prefix
         """
-        if not data:
-            return
-
         if not self.queue:
             _log.warning("Received data but queue not initialized - call start() first")
             return
 
         flag = data[0]
-        if flag not in (self.non_final_chunk_flag, self.final_chunk_flag):
-            return
-
         chunk = data[1:]
-        #_log.debug(f"Chunk size: {len(chunk)}, rawOffset: {self._raw_offset}")
 
         if self.streaming:
             if len(chunk) > 0:
@@ -93,7 +86,7 @@ class RxAudio:
         self._raw_offset = 0
 
         # subscribe to the data response feed
-        frame.register_data_response_handler(self, self.handle_data)
+        frame.register_data_response_handler(self, [self.non_final_chunk_flag, self.final_chunk_flag], self.handle_data)
 
         return self.queue
 
