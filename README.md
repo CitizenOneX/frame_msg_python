@@ -70,3 +70,7 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+## Acknowledgements
+
+* An early port of [TxSprite](https://github.com/CitizenOneX/frame_msg/blob/main/lib/tx/sprite.dart) from Flutter to Python was contributed by [David Khachatryan](https://github.com/KhachDavid) - _thanks!_
