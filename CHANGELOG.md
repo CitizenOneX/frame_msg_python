@@ -1,3 +1,7 @@
+## 4.0.0
+
+* Allow multiple Rx classes to register for Frame data responses and specify their msg_code filter.
+
 ## 3.0.0
 
 * Initial version of `FrameMsg` wrapper for FrameBle with added lifecycle and convenience functions for loading standard Lua helpers
