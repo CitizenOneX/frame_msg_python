@@ -16,6 +16,8 @@ from .tx_sprite import TxSprite
 from .tx_text_sprite_block import TxTextSpriteBlock
 
 from .rx_audio import RxAudio
+from .rx_auto_exp_result import RxAutoExpResult
 from .rx_imu import RxIMU
+from .rx_metering_data import RxMeteringData
 from .rx_photo import RxPhoto
 from .rx_tap import RxTap
