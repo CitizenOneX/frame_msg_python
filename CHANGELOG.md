@@ -1,3 +1,7 @@
+## 4.1.0
+
+* Updated camera exposure defaults. Added Rx classes for subscribing to auto exposure results and metering data.
+
 ## 4.0.0
 
 * Allow multiple Rx classes to register for Frame data responses and specify their msg_code filter.
