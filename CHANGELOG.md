@@ -1,3 +1,7 @@
+## 4.2.0
+
+* Corrected `pyproject.toml` to include existing dependencies on `lz4`, `numpy`, `pillow`, `frame-ble`
+
 ## 4.1.0
 
 * Updated camera exposure defaults. Added Rx classes for subscribing to auto exposure results and metering data.

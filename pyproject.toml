@@ -4,7 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "frame-msg"
-version = "4.1.0"
+version = "4.2.0"
+dependencies = [
+    "lz4>=4.4.3,<5.0.0",
+    "numpy>=2.2.3,<3.0.0",
+    "pillow>=11.1.0,<12.0.0",
+    "frame-ble>=1.0.5"
+]
 authors = [
     { name = "CitizenOne" },
 ]
