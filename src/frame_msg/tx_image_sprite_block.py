@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import struct
 from typing import List
 import numpy as np
