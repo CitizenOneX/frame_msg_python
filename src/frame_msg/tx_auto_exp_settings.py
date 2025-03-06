@@ -18,7 +18,7 @@ class TxAutoExpSettings:
     metering_index: int = 2
     exposure: float = 0.18
     exposure_speed: float = 0.5
-    shutter_limit: int = 8192
+    shutter_limit: int = 4096
     analog_gain_limit: int = 16
     white_balance_speed: float = 0.5
     rgb_gain_limit: int = 141
