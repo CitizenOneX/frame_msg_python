@@ -1,3 +1,7 @@
+## 5.0.0
+
+* Added support for `rgb_gain_limit` parameter to cap maximum per-channel gain for Frame camera
+
 ## 4.2.0
 
 * Corrected `pyproject.toml` to include existing dependencies on `lz4`, `numpy`, `pillow`, `frame-ble`
