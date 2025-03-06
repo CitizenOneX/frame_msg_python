@@ -16,9 +16,10 @@ local auto_exp_settings = {
 	metering = 'AVERAGE',
 	exposure = 0.18,
 	exposure_speed = 0.5,
-	shutter_limit = 16383,
-	analog_gain_limit = 1.0,
-	white_balance_speed = 0.5
+	shutter_limit = 8192,
+	analog_gain_limit = 16.0,
+	white_balance_speed = 0.5,
+	rgb_gain_limit = 141
 }
 
 local manual_exp_settings = {
@@ -70,6 +71,7 @@ function _M.parse_auto_exp_settings(data)
 	settings.shutter_limit = string.byte(data, 4) << 8 | string.byte(data, 5) & 0x3FFF
 	settings.analog_gain_limit = string.byte(data, 6) & 0xFF
 	settings.white_balance_speed = string.byte(data, 7) / 255.0
+	settings.rgb_gain_limit = string.byte(data, 8) << 8 | string.byte(data, 9) & 0x3FF
 
 	return settings
 end
