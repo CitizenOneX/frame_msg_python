@@ -16,15 +16,15 @@ local auto_exp_settings = {
 	metering = 'AVERAGE',
 	exposure = 0.18,
 	exposure_speed = 0.5,
-	shutter_limit = 8192,
+	shutter_limit = 3072,
 	analog_gain_limit = 16.0,
 	white_balance_speed = 0.5,
 	rgb_gain_limit = 141
 }
 
 local manual_exp_settings = {
-	shutter = 4096,
-	analog_gain = 1,
+	shutter = 3072,
+	analog_gain = 16,
 	red_gain = 121,
 	green_gain = 64,
 	blue_gain = 140
