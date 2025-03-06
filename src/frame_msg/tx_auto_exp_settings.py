@@ -13,21 +13,24 @@ class TxAutoExpSettings:
         shutter_limit: Maximum shutter value (4-16383)
         analog_gain_limit: Maximum analog gain value (1-248)
         white_balance_speed: Speed of white balance adjustments (0.0-1.0)
+        rgb_gain_limit: Maximum gain value for red, green, blue channels (0-1023)
     """
     metering_index: int = 2
     exposure: float = 0.18
     exposure_speed: float = 0.5
-    shutter_limit: int = 16383
-    analog_gain_limit: int = 1
+    shutter_limit: int = 3072
+    analog_gain_limit: int = 16
     white_balance_speed: float = 0.5
+    rgb_gain_limit: int = 141
 
     def pack(self) -> bytes:
-        """Pack the settings into 7 bytes."""
-        return struct.pack('>BBBHBB',
+        """Pack the settings into 9 bytes."""
+        return struct.pack('>BBBHBBH',
             self.metering_index & 0xFF,
             int(self.exposure * 255) & 0xFF,
             int(self.exposure_speed * 255) & 0xFF,
             self.shutter_limit & 0x3FFF,
             self.analog_gain_limit & 0xFF,
-            int(self.white_balance_speed * 255) & 0xFF
+            int(self.white_balance_speed * 255) & 0xFF,
+            self.rgb_gain_limit & 0x3FF
         )

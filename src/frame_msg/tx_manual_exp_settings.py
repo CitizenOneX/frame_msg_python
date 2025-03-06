@@ -13,11 +13,11 @@ class TxManualExpSettings:
         manual_green_gain: Green gain value (0-1023)
         manual_blue_gain: Blue gain value (0-1023)
     """
-    manual_shutter: int = 4096
-    manual_analog_gain: int = 1
-    manual_red_gain: int = int(1.9 * 64)
-    manual_green_gain: int = int(1.0 * 64)
-    manual_blue_gain: int = int(2.2 * 64)
+    manual_shutter: int = 3072
+    manual_analog_gain: int = 16
+    manual_red_gain: int = 121
+    manual_green_gain: int = 64
+    manual_blue_gain: int = 140
 
     def pack(self) -> bytes:
         """Pack the settings into 9 bytes."""
