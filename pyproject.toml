@@ -1,5 +1,11 @@
 [build-system]
-requires = ["hatchling"]
+requires = [
+    "hatchling",
+    "setuptools",
+    "wheel",
+    "sphinx>=7.0.0",
+    "sphinx-rtd-theme>=2.0.0",
+]
 build-backend = "hatchling.build"
 
 [project]
@@ -34,5 +40,6 @@ include = [
 
 [project.urls]
 "Homepage" = "https://github.com/CitizenOneX/frame_msg_python"
+"Documentation" = "https://frame-msg-python.readthedocs.io/en/latest/index.html"
 "Bug Tracker" = "https://github.com/CitizenOneX/frame_msg_python/issues"
 "Changelog" = "https://github.com/CitizenOneX/frame_msg_python/blob/main/CHANGELOG.md"
