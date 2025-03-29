@@ -15,13 +15,13 @@ class TxAutoExpSettings:
         white_balance_speed: Speed of white balance adjustments (0.0-1.0)
         rgb_gain_limit: Maximum gain value for red, green, blue channels (0-1023)
     """
-    metering_index: int = 2
-    exposure: float = 0.18
-    exposure_speed: float = 0.5
-    shutter_limit: int = 3072
+    metering_index: int = 1
+    exposure: float = 0.1
+    exposure_speed: float = 0.45
+    shutter_limit: int = 16383
     analog_gain_limit: int = 16
     white_balance_speed: float = 0.5
-    rgb_gain_limit: int = 141
+    rgb_gain_limit: int = 287
 
     def pack(self) -> bytes:
         """Pack the settings into 9 bytes."""
