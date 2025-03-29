@@ -1,3 +1,7 @@
+## 5.0.1
+
+* Corrected new defaults for auto exposure algorithm to match firmware v25.080.0838
+
 ## 5.0.0
 
 * Added support for `rgb_gain_limit` parameter to cap maximum per-channel gain for Frame camera

@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.abspath('../../src'))
 project = 'frame_msg_python'
 copyright = '2025, CitizenOneX'
 author = 'CitizenOneX'
-release = '5.0.0'
+release = '5.0.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
