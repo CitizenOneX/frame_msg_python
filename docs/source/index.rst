@@ -1,10 +1,10 @@
-.. frame_msg_python documentation master file, created by
-   sphinx-quickstart on Fri Mar 28 00:26:49 2025.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+frame_msg
+=========
 
-frame_msg_python documentation
-==============================
+Application-level library for passing rich objects between a host program and `Brilliant Labs Frame <https://brilliant.xyz/>`_, such as images, streamed audio, IMU data and rasterized text.
+
+`Package frame-msg on PyPI. <https://pypi.org/project/frame-msg/>`_
+
 
 .. toctree::
    :maxdepth: 2
