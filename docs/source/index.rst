@@ -10,4 +10,4 @@ Application-level library for passing rich objects between a host program and `B
    :maxdepth: 2
    :caption: Contents:
 
-   frame_msg
+   api

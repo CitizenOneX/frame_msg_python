@@ -1,5 +1,5 @@
 """
-frame_msg - Frame Message Package defines Transmit- and Receive-related frame message classes and their associated Lua handlers for Brilliant Labs Frame
+frame_msg - Frame Message Package defines Transmit- and Receive-related frame message classes and their associated Lua handlers for Brilliant Labs Frame (https://brilliant.xyz/)
 """
 
 __version__ = "0.0.1"
