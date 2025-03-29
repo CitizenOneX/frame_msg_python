@@ -6,9 +6,6 @@ API Reference
    :show-inheritance:
    :undoc-members:
 
-Submodules
-==========
-
 FrameMsg
 --------
 
