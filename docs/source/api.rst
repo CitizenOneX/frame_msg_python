@@ -1,133 +1,127 @@
-frame\_msg package
-==================
+API Reference
+=============
 
-Submodules
-----------
+.. automodule:: frame_msg
+   :members:
+   :show-inheritance:
+   :undoc-members:
 
-frame\_msg.frame\_msg module
-----------------------------
+FrameMsg
+--------
 
 .. automodule:: frame_msg.frame_msg
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.rx\_audio module
----------------------------
+RxAudio
+-------
 
 .. automodule:: frame_msg.rx_audio
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.rx\_auto\_exp\_result module
----------------------------------------
+RxAutoExpResult
+---------------
 
 .. automodule:: frame_msg.rx_auto_exp_result
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.rx\_imu module
--------------------------
+RxIMU
+-----
 
 .. automodule:: frame_msg.rx_imu
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.rx\_metering\_data module
-------------------------------------
+RxMeteringData
+--------------
 
 .. automodule:: frame_msg.rx_metering_data
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.rx\_photo module
----------------------------
+RxPhoto
+-------
 
 .. automodule:: frame_msg.rx_photo
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.rx\_tap module
--------------------------
+RxTap
+-----
 
 .. automodule:: frame_msg.rx_tap
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.tx\_auto\_exp\_settings module
------------------------------------------
+TxAutoExpSettings
+-----------------
 
 .. automodule:: frame_msg.tx_auto_exp_settings
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.tx\_capture\_settings module
----------------------------------------
+TxCaptureSettings
+-----------------
 
 .. automodule:: frame_msg.tx_capture_settings
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.tx\_code module
---------------------------
+TxCode
+------
 
 .. automodule:: frame_msg.tx_code
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.tx\_image\_sprite\_block module
-------------------------------------------
+TxImageSpriteBlock
+------------------
 
 .. automodule:: frame_msg.tx_image_sprite_block
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.tx\_manual\_exp\_settings module
--------------------------------------------
+TxManualExpSettings
+-------------------
 
 .. automodule:: frame_msg.tx_manual_exp_settings
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.tx\_plain\_text module
----------------------------------
+TxPlainText
+-----------
 
 .. automodule:: frame_msg.tx_plain_text
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.tx\_sprite module
-----------------------------
+TxSprite
+--------
 
 .. automodule:: frame_msg.tx_sprite
    :members:
    :show-inheritance:
    :undoc-members:
 
-frame\_msg.tx\_text\_sprite\_block module
------------------------------------------
+TxTextSpriteBlock
+-----------------
 
 .. automodule:: frame_msg.tx_text_sprite_block
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
----------------
-
-.. automodule:: frame_msg
    :members:
    :show-inheritance:
    :undoc-members:
