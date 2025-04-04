@@ -22,7 +22,7 @@ authors = [
 ]
 description = "Handles various message types for the Brilliant Labs Frame"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: BSD License",
