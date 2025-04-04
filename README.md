@@ -1,6 +1,10 @@
 # Frame Message Package
 
-A Python package for handling various types of messages for the Brilliant Labs Frame, including sprites, text, audio, IMU data, and photos.
+A Python package for handling rich application-level messages for the [Brilliant Labs Frame](https://brilliant.xyz/), including sprites, text, audio, IMU data, and photos.
+
+[Frame SDK documentation](https://docs.brilliant.xyz/frame/frame-sdk/).
+
+[Examples repo on GitHub](https://github.com/CitizenOneX/frame_examples_python).
 
 ## Installation
 
