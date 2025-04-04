@@ -1,3 +1,7 @@
+## 5.0.2
+
+* Docs: added ReadTheDocs API Reference and updated README
+
 ## 5.0.1
 
 * Corrected new defaults for auto exposure algorithm to match firmware v25.080.0838
