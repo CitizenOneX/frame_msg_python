@@ -1,3 +1,7 @@
+## 5.0.3
+
+* Fixed Python version dependency issue - numpy 2.2.3 requires Python >= 3.10, updated project Python version minimum from 3.7 to 3.10.
+
 ## 5.0.2
 
 * Docs: added ReadTheDocs API Reference and updated README
