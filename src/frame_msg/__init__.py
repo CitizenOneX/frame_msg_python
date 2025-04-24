@@ -13,6 +13,7 @@ from .tx_image_sprite_block import TxImageSpriteBlock
 from .tx_manual_exp_settings import TxManualExpSettings
 from .tx_plain_text import TxPlainText
 from .tx_sprite import TxSprite
+from .tx_sprite_coords import TxSpriteCoords
 from .tx_text_sprite_block import TxTextSpriteBlock
 
 from .rx_audio import RxAudio
