@@ -1,3 +1,7 @@
+## 5.1.0
+
+* Added `TxSpriteCoords` message for indicating the placement of a sprite at specified coordinates using a palette offset.
+
 ## 5.0.3
 
 * Fixed Python version dependency issue - numpy 2.2.3 requires Python >= 3.10, updated project Python version minimum from 3.7 to 3.10.
