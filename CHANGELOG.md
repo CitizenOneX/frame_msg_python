@@ -1,3 +1,7 @@
+## 5.1.1
+
+* Corrected new defaults for auto exposure algorithm to match firmware v25.080.0838 also in `camera.lua`
+
 ## 5.1.0
 
 * Added `TxSpriteCoords` message for indicating the placement of a sprite at specified coordinates using a palette offset.
