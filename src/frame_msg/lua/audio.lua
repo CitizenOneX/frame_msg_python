@@ -1,4 +1,4 @@
--- Module for sending raw PCM audio Data from the Fram microphone
+-- Module for sending raw PCM audio Data from Frame's microphone
 local _M = {}
 
 -- Frame to Host flags
@@ -10,7 +10,11 @@ local MTU = frame.bluetooth.max_length()
 if MTU % 2 == 1 then MTU = MTU - 1 end
 
 function _M.start(args)
-	pcall(frame.microphone.start, {sample_rate=8000, bit_depth=16})
+	-- if args provides a sample_rate or a bit_depth use them otherwise use the defaults
+	local rate = (args and args.sample_rate) or 8000
+	local depth = (args and args.bit_depth) or 8
+
+	pcall(frame.microphone.start, {sample_rate=rate, bit_depth=depth})
 end
 
 function _M.stop()
@@ -31,7 +35,6 @@ function _M.read_and_send_audio()
 			if (pcall(frame.bluetooth.send, string.char(AUDIO_DATA_FINAL_MSG))) then
 				break
 			end
-			frame.sleep(0.0025)
 		end
 
 		return nil
@@ -43,7 +46,6 @@ function _M.read_and_send_audio()
 			if (pcall(frame.bluetooth.send, string.char(AUDIO_DATA_NON_FINAL_MSG) .. audio_data)) then
 				break
 			end
-			frame.sleep(0.0025)
 		end
 
 		return string.len(audio_data)

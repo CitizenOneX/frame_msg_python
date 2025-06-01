@@ -102,7 +102,7 @@ class RxAudio:
     def to_wav_bytes(
         pcm_data: bytes,
         sample_rate: int = 8000,
-        bits_per_sample: int = 16,
+        bits_per_sample: int = 8,
         channels: int = 1
     ) -> bytes:
         """
