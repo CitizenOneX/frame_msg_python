@@ -1,3 +1,8 @@
+## 5.2.0
+
+* Fixed audio.lua to allow caller to specify desired sample rate and bit depth
+* Changed default to audio recording to 8kHz, 8-bit (from 8kHz, 16-bit) due to bandwidth requirements
+
 ## 5.1.1
 
 * Corrected new defaults for auto exposure algorithm to match firmware v25.080.0838 also in `camera.lua`
