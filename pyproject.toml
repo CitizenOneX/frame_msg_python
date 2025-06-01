@@ -10,7 +10,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "frame-msg"
-version = "5.2.0"
+version = "5.2.1"
 dependencies = [
     "lz4>=4.4.3,<5.0.0",
     "numpy>=2.2.3,<3.0.0",

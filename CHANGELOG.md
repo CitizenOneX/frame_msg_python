@@ -1,3 +1,7 @@
+## 5.2.1
+
+* Fixed RxAudio.to_wav_bytes() to correctly handle Frame's signed 8-bit samples
+
 ## 5.2.0
 
 * Fixed audio.lua to allow caller to specify desired sample rate and bit depth
