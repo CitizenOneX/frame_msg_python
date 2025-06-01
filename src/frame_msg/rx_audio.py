@@ -109,7 +109,7 @@ class RxAudio:
         Create a WAV file from PCM data.
 
         Args:
-            pcm_data: Raw PCM audio data
+            pcm_data: Raw PCM audio data - signed 8-bit or 16-bit samples straight from Frame (8-bit signed will be converted to unsigned 8-bit for WAV)
             sample_rate: Audio sample rate in Hz
             bits_per_sample: Number of bits per sample
             channels: Number of audio channels
@@ -147,5 +147,15 @@ class RxAudio:
             b'data',
             data_size
         )
+
+        # Convert 8-bit signed PCM to unsigned 8-bit for WAV format (16-bit PCM is left as-is)
+        if bits_per_sample == 8:
+            # Iterate over each sample and reinterpret as signed 8-bit then convert to unsigned 8-bit
+            pcm_data = bytearray(pcm_data)
+            for i in range(len(pcm_data)):
+                # Convert signed 8-bit (-128 to 127) to unsigned 8-bit (0 to 255)
+                pcm_data[i] = (pcm_data[i] if pcm_data[i] < 128 else pcm_data[i] - 256) + 128
+
+            pcm_data = bytes(pcm_data)
 
         return header + pcm_data
